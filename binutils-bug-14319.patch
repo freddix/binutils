@@ -1,0 +1,116 @@
+From binutils-return-76086-listarch-binutils=sources dot redhat dot com at sourceware dot org Sat Jun 30 22:25:17 2012
+Return-Path: <binutils-return-76086-listarch-binutils=sources dot redhat dot com at sourceware dot org>
+Delivered-To: listarch-binutils at sources dot redhat dot com
+Received: (qmail 7394 invoked by alias); 30 Jun 2012 22:25:17 -0000
+Received: (qmail 7383 invoked by uid 22791); 30 Jun 2012 22:25:16 -0000
+X-SWARE-Spam-Status: No, hits=-4.2 required=5.0	tests=AWL,BAYES_00,FSL_FREEMAIL_1,KHOP_RCVD_UNTRUST,NO_DNS_FOR_FROM,RCVD_IN_DNSWL_HI,RCVD_IN_HOSTKARMA_W,T_RP_MATCHES_RCVD
+X-Spam-Check-By: sourceware.org
+Received: from mga09.intel.com (HELO mga09.intel.com) (134.134.136.24)    by sourceware.org (qpsmtpd/0.43rc1) with ESMTP; Sat, 30 Jun 2012 22:25:03 +0000
+Received: from orsmga002.jf.intel.com ([10.7.209.21])  by orsmga102.jf.intel.com with ESMTP; 30 Jun 2012 15:25:03 -0700
+X-ExtLoop1: 1
+Received: from gnu-6.sc.intel.com ([10.3.194.135])  by orsmga002.jf.intel.com with ESMTP; 30 Jun 2012 15:25:03 -0700
+Received: by gnu-6.sc.intel.com (Postfix, from userid 500)	id 1CD9D800CC; Sat, 30 Jun 2012 15:25:03 -0700 (PDT)
+Date: Sat, 30 Jun 2012 15:25:03 -0700
+From: "H dot J dot  Lu" <hongjiu dot lu at intel dot com>
+To: binutils at sourceware dot org
+Subject: PATCH: PR binutils/14319: unable to initialize commpress status for section .debug_line
+Message-ID: <20120630222503.GA2664@intel.com>
+Reply-To: "H dot J dot  Lu" <hjl dot tools at gmail dot com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.21 (2010-09-15)
+Mailing-List: contact binutils-help at sourceware dot org; run by ezmlm
+Precedence: bulk
+List-Id: <binutils.sourceware.org>
+List-Subscribe: <mailto:binutils-subscribe at sourceware dot org>
+List-Archive: <http://sourceware.org/ml/binutils/>
+List-Post: <mailto:binutils at sourceware dot org>
+List-Help: <mailto:binutils-help at sourceware dot org>, <http://sourceware dot org/ml/#faqs>
+Sender: binutils-owner at sourceware dot org
+Delivered-To: mailing list binutils at sourceware dot org
+
+Hi,
+
+This patch avoids compressing empty debug sections.  OK to install?
+
+Thanks.
+
+
+H.J.
+----
+bfd/
+
+2012-06-30  H.J. Lu  <hongjiu.lu@intel.com>
+
+	PR binutils/14319
+	* elf.c (_bfd_elf_make_section_from_shdr): Don't compress empty
+	debug section.
+
+binutils/testsuite/
+
+2012-06-30  H.J. Lu  <hongjiu.lu@intel.com>
+
+	PR binutils/14319
+	* binutils-all/compress.exp: Test compress empty debug sections.
+
+	* binutils-all/dw2-empty.S: New file.
+
+diff --git a/bfd/elf.c b/bfd/elf.c
+index ecbf727..8933c2c 100644
+--- a/bfd/elf.c
++++ b/bfd/elf.c
+@@ -1025,7 +1025,7 @@ _bfd_elf_make_section_from_shdr (bfd *abfd,
+       else
+ 	{
+ 	  /* Normal section.  Check if we should compress.  */
+-	  if ((abfd->flags & BFD_COMPRESS))
++	  if ((abfd->flags & BFD_COMPRESS) && newsect->size != 0)
+ 	    action = compress;
+ 	}
+ 
+diff --git a/binutils/testsuite/binutils-all/compress.exp b/binutils/testsuite/binutils-all/compress.exp
+index 91ed7e4..3b0b485 100644
+--- a/binutils/testsuite/binutils-all/compress.exp
++++ b/binutils/testsuite/binutils-all/compress.exp
+@@ -133,3 +133,32 @@ if ![string match "" $got] then {
+ 	pass "$testname"
+     }
+ }
++
++set testfile tmpdir/dw2-emty.o
++
++if { ![binutils_assemble_flags $srcdir/$subdir/dw2-empty.S $testfile --nocompress-debug-sections] } then {
++    unsupported "compressed debug sections"
++    return
++}
++
++set testname "objcopy compress empty debug sections"
++set got [binutils_run $OBJCOPY "--compress-debug-sections $testfile ${copyfile}.o"]
++if ![string match "" $got] then {
++    fail "objcopy ($testname)"
++} else {
++    send_log "cmp $testfile ${copyfile}.o\n"
++    verbose "cmp $testfile ${copyfile}.o"
++    set src1 ${testfile}
++    set src2 ${copyfile}.o
++    set status [remote_exec build cmp "${src1} ${src2}"]
++    set exec_output [lindex $status 1]
++    set exec_output [prune_warnings $exec_output]
++
++    if [string match "" $exec_output] then {
++	pass "objcopy ($testname)"
++    } else {
++	send_log "$exec_output\n"
++	verbose "$exec_output" 1
++	fail "objcopy ($testname)"
++    }
++}
+diff --git a/binutils/testsuite/binutils-all/dw2-empty.S b/binutils/testsuite/binutils-all/dw2-empty.S
+new file mode 100644
+index 0000000..63a2b90
+--- /dev/null
++++ b/binutils/testsuite/binutils-all/dw2-empty.S
+@@ -0,0 +1 @@
++	.section .debug_line
+
