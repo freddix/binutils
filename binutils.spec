@@ -1,7 +1,7 @@
 Summary:	GNU Binary Utility Development Utilities
 Name:		binutils
 Version:	2.22.52.0.4
-Release:	5
+Release:	6
 Epoch:		3
 License:	GPL
 Group:		Development/Tools
@@ -70,7 +70,7 @@ LDFLAGS="%{rpmldflags}"	\
 	--enable-shared			\
 	--enable-gold                   \
 	--enable-ld=default             \
-	--with-lib-path=/usr/lib:/usr/local/lib	\
+	--with-lib-path=%{_libdir}	\
 	--with-tooldir=%{_prefix}
 %{__make} tooldir=%{_prefix}
 
