@@ -1,19 +1,19 @@
 Summary:	GNU Binary Utility Development Utilities
 Name:		binutils
-Version:	2.22.52.0.4
-Release:	6
+Version:	2.23
+Release:	2
 Epoch:		3
 License:	GPL
 Group:		Development/Tools
-Source0:	http://www.kernel.org/pub/linux/devel/binutils/%{name}-%{version}.tar.bz2
-# Source0-md5:	2a5beea06d6f3e21107365b91184e11c
-Patch0:		%{name}-bug-14319.patch
+#Source0:	http://www.kernel.org/pub/linux/devel/binutils/%{name}-%{version}.tar.bz2
+Source0:	ftp://ftp.gnu.org/gnu/binutils/%{name}-%{version}.tar.gz
+# Source0-md5:	ed58f50d8920c3f1d9cb110d5c972c27
 URL:		http://sources.redhat.com/binutils/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	bison
 BuildRequires:	flex
-BuildRequires:	gettext-devel
+BuildRequires:	gettext
 BuildRequires:	perl-tools-pod
 BuildRequires:	texinfo
 Requires(post,postun):	/usr/sbin/ldconfig
@@ -48,7 +48,6 @@ GNU binutils static libraries.
 
 %prep
 %setup -q
-%patch0 -p1
 
 %build
 cp -f /usr/share/automake/config.* .
@@ -58,20 +57,19 @@ cd build
 
 CFLAGS="%{rpmcflags}"	\
 LDFLAGS="%{rpmldflags}"	\
-../configure %{_target_platform} 	\
+../configure %{_target_platform}	\
 	--infodir=%{_infodir}		\
 	--libdir=%{_libdir}		\
 	--mandir=%{_mandir}		\
 	--prefix=%{_prefix}		\
 	--disable-debug			\
-%ifarch %{x8664}
-	--enable-64-bit-bfd		\
-%endif
+	--enable-gold			\
+	--enable-ld=default		\
+	--enable-plugins		\
 	--enable-shared			\
-	--enable-gold                   \
-	--enable-ld=default             \
 	--with-lib-path=%{_libdir}	\
 	--with-tooldir=%{_prefix}
+%{__make} configure-host
 %{__make} tooldir=%{_prefix}
 
 cp -a libiberty libiberty-pic
