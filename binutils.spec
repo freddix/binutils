@@ -1,7 +1,7 @@
 Summary:	GNU Binary Utility Development Utilities
 Name:		binutils
 Version:	2.23.1
-Release:	1
+Release:	2
 Epoch:		3
 License:	GPL
 Group:		Development/Tools
