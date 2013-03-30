@@ -1,13 +1,13 @@
 Summary:	GNU Binary Utility Development Utilities
 Name:		binutils
-Version:	2.23.1
-Release:	2
+Version:	2.23.2
+Release:	1
 Epoch:		3
 License:	GPL
 Group:		Development/Tools
 #Source0:	http://www.kernel.org/pub/linux/devel/binutils/%{name}-%{version}.tar.bz2
 Source0:	ftp://ftp.gnu.org/gnu/binutils/%{name}-%{version}.tar.gz
-# Source0-md5:	7a519f12859baa0282866b8e8a4d04f0
+# Source0-md5:	cda9dcc08c86ff2fd3f27e4adb250f6f
 URL:		http://sources.redhat.com/binutils/
 BuildRequires:	autoconf
 BuildRequires:	automake
