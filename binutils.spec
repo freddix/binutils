@@ -1,13 +1,13 @@
 Summary:	GNU Binary Utility Development Utilities
 Name:		binutils
-Version:	2.23.2
-Release:	2
+Version:	2.24
+Release:	1
 Epoch:		3
 License:	GPL
 Group:		Development/Tools
 #Source0:	http://www.kernel.org/pub/linux/devel/binutils/%{name}-%{version}.tar.bz2
 Source0:	ftp://ftp.gnu.org/gnu/binutils/%{name}-%{version}.tar.gz
-# Source0-md5:	cda9dcc08c86ff2fd3f27e4adb250f6f
+# Source0-md5:	a5dd5dd2d212a282cc1d4a84633e0d88
 URL:		http://sources.redhat.com/binutils/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -142,6 +142,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/ar
 %attr(755,root,root) %{_bindir}/as
 %attr(755,root,root) %{_bindir}/c++filt
+%attr(755,root,root) %{_bindir}/dwp
 %attr(755,root,root) %{_bindir}/elfedit
 %attr(755,root,root) %{_bindir}/gprof
 %attr(755,root,root) %{_bindir}/ld
