@@ -1,13 +1,15 @@
 Summary:	GNU Binary Utility Development Utilities
 Name:		binutils
 Version:	2.24
-Release:	2
+Release:	3
 Epoch:		3
 License:	GPL
 Group:		Development/Tools
 #Source0:	http://www.kernel.org/pub/linux/devel/binutils/%{name}-%{version}.tar.bz2
 Source0:	ftp://ftp.gnu.org/gnu/binutils/%{name}-%{version}.tar.gz
 # Source0-md5:	a5dd5dd2d212a282cc1d4a84633e0d88
+Patch0:		%{name}-static-pie-hang.patch
+Patch1:		%{name}-lto-testsuite.patch
 URL:		http://sources.redhat.com/binutils/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -48,6 +50,8 @@ GNU binutils static libraries.
 
 %prep
 %setup -q
+%patch0 -p1
+%patch1 -p1
 
 %build
 cp -f /usr/share/automake/config.* .
@@ -63,6 +67,7 @@ LDFLAGS="%{rpmldflags}"	\
 	--mandir=%{_mandir}		\
 	--prefix=%{_prefix}		\
 	--disable-debug			\
+	--disable-werror		\
 	--enable-gold			\
 	--enable-ld=default		\
 	--enable-plugins		\
