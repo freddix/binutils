@@ -1,7 +1,7 @@
 Summary:	GNU Binary Utility Development Utilities
 Name:		binutils
 Version:	2.24
-Release:	3
+Release:	4
 Epoch:		3
 License:	GPL
 Group:		Development/Tools
@@ -10,6 +10,8 @@ Source0:	ftp://ftp.gnu.org/gnu/binutils/%{name}-%{version}.tar.gz
 # Source0-md5:	a5dd5dd2d212a282cc1d4a84633e0d88
 Patch0:		%{name}-static-pie-hang.patch
 Patch1:		%{name}-lto-testsuite.patch
+Patch2:		%{name}-gold-testsuite.patch
+Patch3:		%{name}-shared-pie.patch
 URL:		http://sources.redhat.com/binutils/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -52,6 +54,8 @@ GNU binutils static libraries.
 %setup -q
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
+%patch3 -p1
 
 %build
 cp -f /usr/share/automake/config.* .
@@ -77,18 +81,6 @@ LDFLAGS="%{rpmldflags}"	\
 %{__make} configure-host
 %{__make} tooldir=%{_prefix}
 
-cp -a libiberty libiberty-pic
-%{__make} -C libiberty-pic clean
-%{__make} CFLAGS="${CFLAGS} -fPIC" -C libiberty-pic
-
-cp -a bfd bfd-pic
-%{__make} -C bfd-pic clean
-%{__make} CFLAGS="${CFLAGS} -fPIC -fvisibility=hidden" -C bfd-pic
-
-cp -a opcodes opcodes-pic
-%{__make} -C opcodes-pic clean
-%{__make} CFLAGS="${CFLAGS} -fPIC" -C opcodes-pic
-
 %install
 rm -rf $RPM_BUILD_ROOT
 
@@ -96,21 +88,13 @@ rm -rf $RPM_BUILD_ROOT
 	tooldir=%{_prefix} \
 	DESTDIR=$RPM_BUILD_ROOT
 
-rm -f $RPM_BUILD_ROOT%{_infodir}/standards.info*
+%{__rm} $RPM_BUILD_ROOT%{_infodir}/standards.info*
+%{__rm} $RPM_BUILD_ROOT%{_infodir}/dir
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/*.la
 
 # remove these man pages unless we cross-build for win*/netware platforms.
 # however, this should be done in Makefiles.
-rm -f $RPM_BUILD_ROOT%{_mandir}/man1/{dlltool,nlmconv,windres}.1
-
-install include/libiberty.h $RPM_BUILD_ROOT%{_includedir}
-install build/libiberty-pic/libiberty.a $RPM_BUILD_ROOT%{_libdir}
-install build/bfd-pic/libbfd.a $RPM_BUILD_ROOT%{_libdir}
-install build/opcodes-pic/libopcodes.a $RPM_BUILD_ROOT%{_libdir}
-
-# remove evil -L pointing inside builder's home
-perl -pi -e 's@-L[^ ]*/pic @@g' $RPM_BUILD_ROOT%{_libdir}/*.la
-
-rm -f $RPM_BUILD_ROOT%{_infodir}/dir
+%{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/{dlltool,nlmconv,windres}.1
 
 %find_lang bfd
 %find_lang binutils
@@ -180,8 +164,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libbfd.so
 %attr(755,root,root) %{_libdir}/libopcodes.so
-%{_libdir}/*.la
-%{_libdir}/libiberty.a
 %{_includedir}/*.h
 %{_infodir}/bfd.info*
 
